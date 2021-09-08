@@ -14,22 +14,32 @@ class Forcast {
         this.description = description;
     }
 }
+class Movies {
+constructor ( title ,overview,vote_average,vote_count,poster_path,popularity,release_date) {
+    this.title = title;
+    this.overview = overview;
+    this.vote_average = vote_average;
+    this.vote_count = vote_count;
+    this.poster_path = poster_path;
+    this.popularity = popularity;
+    this.release_date = release_date;
+
+}
+}
+const MOVIE_API_KEY = process.env.MOVIE_API_KEY;
 const WEATHER_API_KEY = process.env.WEATHER_API_KEY;
 app.get('/weather', async function (req, res) {
     console.log('hello');
     const lattitude = req.query.lat;
     const longtitude = req.query.lon;
-    // const cityName = req.query.city_name;
     const weatherBitUrl = 'https://api.weatherbit.io/v2.0/forecast/daily';
 console.log();
     try {
         const weatherbitData = await axios.get(`${weatherBitUrl}?lat=${lattitude}&lon=${longtitude}&key=${WEATHER_API_KEY}`);
-
         const dataAndDescription = weatherbitData.data.data.map(value => {
             return new Forcast(value.datetime, value.weather.description)
         })
         res.json(dataAndDescription)
-        // console.log(dataAndDescription); 
     }
     catch (error) {
         res.json(error);
@@ -37,27 +47,28 @@ console.log();
 
 });
 
+app.get('/movies',async function (req, res) {
+    console.log('hello from movies');
+    const cityName = req.query.query;
+    const moviesUrl ='https://api.themoviedb.org/3/search/movie';
 
-// if(cityName){
-//  const filteredWeatherData = weatherDataFile.find(ele => { 
-//      return (  ele.city_name == cityName)
-//     })
+try {
+    
 
-// }
-// else {
-//     // res.json(weatherDataFile)
-//     res.send(weatherDataFile)
-// }
+    const moviesData = await axios.get(`${moviesUrl}?api_key=${MOVIE_API_KEY}&query=${cityName}`)
+    const moviesAllDAta = moviesData.data.results.map(element => {
+    return new Movies(element.title,element.overview,element.vote_average,element.vote_count,element.poster_path,element.popularity,element.release_date);
+})
+
+res.json(moviesAllDAta);
+
+} 
+catch (error) {
+    console.log('error');
+}
+});
 
 
-
-
-// app.get('/weather', // our endpoint name
-// function (req, res) { // callback function of what we should do with our request
-//  res.send('Hello World from weather') // our endpoint function response
-// });
-
-// app.listen(3000) =
 app.listen(PORT, () => {
     console.log(`server started on port `);
 });
